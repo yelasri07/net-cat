@@ -1,8 +1,12 @@
 package functions
 
-import "net"
+import (
+	"fmt"
+	"net"
+)
 
 func HandleClient(conn net.Conn) {
+	r := make([]byte, 4096)
 	welcomeMessage := "Welcome to TCP-Chat!\n" +
 		"         _nnnn_\n" +
 		"        dGGGGMMb\n" +
@@ -22,4 +26,14 @@ func HandleClient(conn net.Conn) {
 		"     -'       --'\n"
 
 	conn.Write([]byte(welcomeMessage))
+
+	conn.Write([]byte("[ENTER YOUR NAME]: "))
+
+	n, _ := conn.Read(r)
+
+	name := string(r[:n-1])
+
+	fmt.Println(string(r))
+
+	conn.Write([]byte("[2020-01-20 16:03:43][" + name + "]"))
 }
