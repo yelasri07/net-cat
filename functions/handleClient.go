@@ -26,8 +26,10 @@ func (c *Connection) HandleClient(conn net.Conn) {
 		"\\____   )MMMMMP|   .'\n" +
 		"     -'       --'\n"
 
+	c.Mutex.Lock()
 	conn.Write([]byte(welcomeMessage))
 	conn.Write([]byte("[ENTER YOUR NAME]: "))
+	c.Mutex.Unlock()
 
 	n, err := conn.Read(readChat)
 	if err != nil {
@@ -45,13 +47,16 @@ func (c *Connection) HandleClient(conn net.Conn) {
 
 	for {
 		printMsg := fmt.Sprintf("[%v][%v]:", time.Now().Format(time.DateTime), name)
+		c.Mutex.Lock()
 		conn.Write([]byte(printMsg))
+		c.Mutex.Unlock()
 		n, err := conn.Read(readChat)
 		if err != nil || n < 1 {
 			return
 		}
 
 		msg := string(readChat[:n-1])
+		msg = fmt.Sprintf("\n[%v][%v]:%v", time.Now().Format(time.DateTime), name, msg)
 		c.BroadCast(name, msg)
 	}
 
