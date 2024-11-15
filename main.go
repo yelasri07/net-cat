@@ -14,13 +14,15 @@ func main() {
 		return
 	}
 
+	Connection := functions.NewConnection()
+
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
 			fmt.Println("Error: ", err.Error())
 			continue
 		}
-		
-		functions.HandleClient(conn)
+	
+		go Connection.HandleClient(conn)
 	}
 }

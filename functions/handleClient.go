@@ -3,10 +3,11 @@ package functions
 import (
 	"fmt"
 	"net"
+	"time"
 )
 
-func HandleClient(conn net.Conn) {
-	r := make([]byte, 4096)
+func (c *Connection) HandleClient(conn net.Conn) {
+	readChat := make([]byte, 4096)
 	welcomeMessage := "Welcome to TCP-Chat!\n" +
 		"         _nnnn_\n" +
 		"        dGGGGMMb\n" +
@@ -26,14 +27,32 @@ func HandleClient(conn net.Conn) {
 		"     -'       --'\n"
 
 	conn.Write([]byte(welcomeMessage))
-
 	conn.Write([]byte("[ENTER YOUR NAME]: "))
 
-	n, _ := conn.Read(r)
+	n, err := conn.Read(readChat)
+	if err != nil {
+		fmt.Println("Error reading from client:", err)
+		return
+	}
 
-	name := string(r[:n-1])
+	name := string(readChat[:n-1])
+	c.AddClient(name, conn)
 
-	fmt.Println(string(r))
+	defer func() {
+		c.RemoveClient(name)
+		conn.Close()
+	}()
 
-	conn.Write([]byte("[2020-01-20 16:03:43][" + name + "]"))
+	for {
+		printMsg := fmt.Sprintf("[%v][%v]:", time.Now().Format(time.DateTime), name)
+		conn.Write([]byte(printMsg))
+		n, err := conn.Read(readChat)
+		if err != nil || n < 1 {
+			return
+		}
+
+		msg := string(readChat[:n-1])
+		c.BroadCast(name, msg)
+	}
+
 }
