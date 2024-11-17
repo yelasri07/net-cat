@@ -5,25 +5,32 @@ import (
 	"sync"
 )
 
-type Connection struct {
-	Clients map[string]net.Conn
-	Mutex   sync.Mutex
+type Connections struct {
+	Users    map[string]net.Conn
+	messages []string
+	sync.Mutex
 }
 
-func NewConnection() *Connection {
-	return &Connection{
-		Clients: make(map[string]net.Conn),
+func NewConnection() *Connections {
+	return &Connections{
+		Users: make(map[string]net.Conn),
 	}
 }
 
-func (c *Connection) AddClient(name string, conn net.Conn) {
+func (c *Connections) AddClient(name string, conn net.Conn) {
 	c.Mutex.Lock()
-	c.Clients[name] = conn
+	c.Users[name] = conn
 	c.Mutex.Unlock()
 }
 
-func (c *Connection) RemoveClient(name string) {
+func (c *Connections) RemoveClient(name string) {
 	c.Mutex.Lock()
-	delete(c.Clients, name)
+	delete(c.Users, name)
+	c.Mutex.Unlock()
+}
+
+func (c *Connections) RegisterMsg(s string) {
+	c.Mutex.Lock()
+	c.messages = append(c.messages, s)
 	c.Mutex.Unlock()
 }
