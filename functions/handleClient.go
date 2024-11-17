@@ -7,6 +7,9 @@ import (
 )
 
 func (c *Connection) HandleClient(conn net.Conn) {
+	defer func() {
+		conn.Close()
+	}()
 	readChat := make([]byte, 4096)
 	welcomeMessage := "Welcome to TCP-Chat!\n" +
 		"         _nnnn_\n" +
@@ -37,12 +40,21 @@ func (c *Connection) HandleClient(conn net.Conn) {
 		return
 	}
 
+	if !isValidInput(readChat, n) {
+		conn.Write([]byte("Invalid name...\n"))
+		return
+	}
+
 	name := string(readChat[:n-1])
 	c.AddClient(name, conn)
 
+	joinClient := fmt.Sprintf("\n%s has joined our chat...", name)
+	c.BroadCast(name, joinClient)
+
 	defer func() {
+		leftClient := fmt.Sprintf("\n%s has left our chat...", name)
+		c.BroadCast(name, leftClient)
 		c.RemoveClient(name)
-		conn.Close()
 	}()
 
 	for {
@@ -59,5 +71,4 @@ func (c *Connection) HandleClient(conn net.Conn) {
 		msg = fmt.Sprintf("\n[%v][%v]:%v", time.Now().Format(time.DateTime), name, msg)
 		c.BroadCast(name, msg)
 	}
-
 }
