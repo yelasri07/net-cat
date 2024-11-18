@@ -1,38 +1,29 @@
 package functions
 
 import (
-	"fmt"
-	"io"
 	"net"
-	"strings"
 )
 
+// handleName prompts the user to enter a valid name and assigns it to userName.
 func (c *Connections) handleName(conn net.Conn, userName *string) error {
 	readChat := make([]byte, 4096)
-	inputName := "[ENTER YOUR NAME]:"
+	inputName := "[ENTER YOUR NAME]: "
 
 check:
-	_, err := conn.Write([]byte(inputName))
-	if err != nil {
-		return err
-	}
+
+	conn.Write([]byte(inputName))
 
 	n, err := conn.Read(readChat)
 	if err != nil {
-		if err == io.EOF {
-			fmt.Println("user out")
-			return err
-		}
 		return err
 	}
 
-	if (*userName) == "" {
-		if !ValidInput(readChat[:n]) {
-			goto check
-		}
-		(*userName) = strings.Trim(string(readChat[:n]), "\n")
-		c.AddClient((*userName), conn)
+	if !ValidInput(readChat[:n-1]) || n == 1 {
+		conn.Write([]byte("Invalid Input!!\n"))
+		goto check
 	}
+
+	*userName = string(readChat[:n-1])
 
 	return nil
 }

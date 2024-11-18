@@ -9,21 +9,32 @@ import (
 	"TCPChat/functions"
 )
 
+var port = ":8989"
+
 func main() {
+	// Check for custom port argument; default to ":8989".
 	arguments := os.Args
-	if len(arguments) != 2 {
+	if len(arguments) > 2 {
 		fmt.Println("[USAGE]: ./TCPChat $port")
 		return
 	}
 
-	PORT := ":" + arguments[1]
-	listener, err := net.Listen("tcp", PORT)
+	if len(arguments) == 2 {
+		port = ":" + arguments[1]
+	}
+
+	// Start listening for incoming connections.
+	listener, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Listening on the port %s\n", PORT)
+	fmt.Printf("Listening on the port %s\n", port)
 	defer listener.Close()
+
+	// Create a new Connections instance to manage clients and messages.
 	connections := functions.NewConnection()
+
+	// Accept and handle client connections in separate goroutines.
 	for {
 		conn, err := listener.Accept()
 		if err != nil {

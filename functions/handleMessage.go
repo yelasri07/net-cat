@@ -6,30 +6,27 @@ import (
 	"time"
 )
 
+// HandleMessage manages incoming messages from a specific client.
 func (c *Connections) HandleMessage(conn net.Conn, userName string) error {
 	readChat := make([]byte, 4096)
+
 WriteAgain:
 	now := time.Now()
-	message := fmt.Sprintf("[%v][%v]:", now.Format(time.DateTime), userName)
-	_, errw := conn.Write([]byte(message))
-	n, err2 := conn.Read(readChat)
-	if err2 != nil {
-		return err2
-	}
-	if errw != nil {
-		return errw
+	promptMessage := fmt.Sprintf("[%v][%v]:", now.Format(time.DateTime), userName)
+	conn.Write([]byte(promptMessage))
+
+	n, err := conn.Read(readChat)
+	if err != nil {
+		return err
 	}
 
-	if !ValidInput(readChat[:n]) {
+	if !ValidInput(readChat[:n-1]) {
 		goto WriteAgain
 	}
 
-	message2 := fmt.Sprintf("\n[%v][%v]:%v", now.Format(time.DateTime), userName, string(readChat[:n]))
+	broadcastMessage := fmt.Sprintf("\n[%v][%v]:%v", now.Format(time.DateTime), userName, string(readChat[:n]))
 
-	errB := c.BrodcastMsg(message2, conn)
+	c.BrodcastMsg(broadcastMessage, conn)
 
-	if errB != nil {
-		return errB
-	}
 	goto WriteAgain
 }

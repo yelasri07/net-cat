@@ -7,19 +7,20 @@ import (
 	"time"
 )
 
+// BrodcastMsg sends a message to all connected users except the sender.
+// It also registers the message to the chat history for future reference.
 func (c *Connections) BrodcastMsg(msg string, conn net.Conn) error {
+	defer c.RegisterMsg(strings.Trim(msg, "\n"))
 	defer c.Mutex.Unlock()
+
 	c.Mutex.Lock()
+
 	for userName, val := range c.Users {
 		if val != conn {
 			message := fmt.Sprintf("[%v][%v]:", time.Now().Format(time.DateTime), userName)
-			if _, err := val.Write([]byte(msg + message)); err != nil {
-				return err
-			}
+			val.Write([]byte(msg + message))
 		}
 	}
-	
-	c.messages = append(c.messages, strings.Trim(msg, "\n"))
-	fmt.Println("=>", c.messages)
+
 	return nil
 }

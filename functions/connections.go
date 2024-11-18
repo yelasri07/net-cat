@@ -5,32 +5,37 @@ import (
 	"sync"
 )
 
+// Connections manages active users and chat messages.
 type Connections struct {
 	Users    map[string]net.Conn
 	messages []string
 	sync.Mutex
 }
 
+// NewConnection initializes a new Connections instance.
 func NewConnection() *Connections {
 	return &Connections{
 		Users: make(map[string]net.Conn),
 	}
 }
 
+// AddClient adds a new user to the active users map.
 func (c *Connections) AddClient(name string, conn net.Conn) {
-	c.Mutex.Lock()
+	c.Lock()
 	c.Users[name] = conn
-	c.Mutex.Unlock()
+	c.Unlock()
 }
 
+// RemoveClient removes a user from the active users map.
 func (c *Connections) RemoveClient(name string) {
-	c.Mutex.Lock()
+	c.Lock()
 	delete(c.Users, name)
-	c.Mutex.Unlock()
+	c.Unlock()
 }
 
+// RegisterMsg adds a message to the chat history.
 func (c *Connections) RegisterMsg(s string) {
-	c.Mutex.Lock()
+	c.Lock()
 	c.messages = append(c.messages, s)
-	c.Mutex.Unlock()
+	c.Unlock()
 }
