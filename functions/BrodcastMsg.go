@@ -17,7 +17,7 @@ func (c *Connections) BrodcastMsg(msg string, conn net.Conn) error {
 
 	for userName, val := range c.Users {
 		if val != conn {
-			message := fmt.Sprintf("[%v][%v]:", time.Now().Format(time.DateTime), userName)
+			message := fmt.Sprintf("\n[%v][%v]:", time.Now().Format(time.DateTime), userName)
 			val.Write([]byte(msg + message))
 		}
 	}

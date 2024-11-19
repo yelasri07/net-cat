@@ -2,6 +2,7 @@ package functions
 
 import (
 	"net"
+	"strings"
 )
 
 // handleName prompts the user to enter a valid name and assigns it to userName.
@@ -18,12 +19,14 @@ check:
 		return err
 	}
 
-	if n == 1 || !ValidInput(readChat[:n-1]) {
+	trimUserName := strings.TrimSpace(string(readChat[:n-1]))
+
+	if n == 1 || !ValidInput([]byte(trimUserName)) {
 		conn.Write([]byte("Invalid Input!!\n"))
 		goto check
 	}
 
-	(*userName) = string(readChat[:n-1])
+	(*userName) = string(trimUserName)
 	if _, exist := c.Users[(*userName)]; exist {
 		conn.Write([]byte("name already exist please try an other name.\n"))
 		goto check

@@ -3,6 +3,7 @@ package functions
 import (
 	"fmt"
 	"net"
+	"strings"
 	"time"
 )
 
@@ -20,11 +21,24 @@ WriteAgain:
 		return err
 	}
 
-	if n == 1 || !ValidInput(readChat[:n-1]) {
+	trimMsg := strings.TrimSpace(string(readChat[:n-1]))
+
+	if !ValidInput([]byte(trimMsg)) {
 		goto WriteAgain
 	}
 
-	broadcastMessage := fmt.Sprintf("\n[%v][%v]:%v", now.Format(time.DateTime), userName, string(readChat[:n]))
+	if strings.HasPrefix(string(trimMsg), "--rename:") {
+		newName := strings.TrimSpace(string(trimMsg[9:]))
+		if newName == "" {
+			conn.Write([]byte("Enter a valid name.\n"))
+			goto WriteAgain
+		} else {
+			userName = c.ChangeName(conn, newName, userName)
+			goto WriteAgain
+		}
+	}
+
+	broadcastMessage := fmt.Sprintf("\n[%v][%v]:%v", now.Format(time.DateTime), userName, string(trimMsg))
 
 	c.BrodcastMsg(broadcastMessage, conn)
 

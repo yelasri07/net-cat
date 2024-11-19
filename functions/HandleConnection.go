@@ -55,7 +55,7 @@ func (c *Connections) HandleConnection(conn net.Conn) {
 	}
 
 	// Announce User Joining
-	joiningMsg := fmt.Sprintf("\n%s has joined our chat...\n", userName)
+	joiningMsg := fmt.Sprintf("\n%s has joined our chat...", userName)
 	c.BrodcastMsg(joiningMsg, conn)
 	c.Logs(joiningMsg)
 
@@ -65,7 +65,7 @@ func (c *Connections) HandleConnection(conn net.Conn) {
 		
 		// Announce User Leaving
 		c.IncrementUserCount("-")
-		leftMsg := fmt.Sprintf("\n%s has left our chat...\n", userName)
+		leftMsg := fmt.Sprintf("\n%s has left our chat...", userName)
 		c.BrodcastMsg(leftMsg, conn)
 		c.Logs(leftMsg)
 		c.RemoveClient(userName)
