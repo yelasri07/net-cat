@@ -21,8 +21,8 @@ check:
 
 	trimUserName := strings.TrimSpace(string(readChat[:n-1]))
 
-	if n == 1 || !ValidInput([]byte(trimUserName)) {
-		conn.Write([]byte("Invalid Input!!\n"))
+	if !CheckSpaceName(trimUserName) || !ValidInput([]byte(trimUserName)) {
+		conn.Write([]byte("Enter a name like : Ismail_Sayen | Youssef07 | !Mossab\n"))
 		goto check
 	}
 

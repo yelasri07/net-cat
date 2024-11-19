@@ -27,10 +27,11 @@ WriteAgain:
 		goto WriteAgain
 	}
 
+	// Handle user name change.
 	if strings.HasPrefix(string(trimMsg), "--rename:") {
 		newName := strings.TrimSpace(string(trimMsg[9:]))
-		if newName == "" {
-			conn.Write([]byte("Enter a valid name.\n"))
+		if !CheckSpaceName(newName) {
+			conn.Write([]byte("Enter a name like : Ismail_Sayen | Youssef07 | !Mossab\n"))
 			goto WriteAgain
 		} else {
 			userName = c.ChangeName(conn, newName, userName)
