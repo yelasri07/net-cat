@@ -14,7 +14,7 @@ func ValidInput(s []byte) bool {
 }
 
 func CheckSpaceName(s string) bool {
-	if len(s) == 0 {
+	if len(s) == 0 || len(s) > 15 {
 		return false
 	}
 

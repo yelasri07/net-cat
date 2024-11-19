@@ -37,11 +37,10 @@ func (c *Connections) HandleConnection(conn net.Conn) {
 
 	// Handle User Name
 	var userName string
-	errName := c.handleName(conn, &userName)
+	errName := c.handleName(conn, &userName, "[ENTER YOUR NAME]: ")
 	if errName != nil {
 		return
 	}
-
 
 	c.IncrementUserCount("+")
 
@@ -54,6 +53,8 @@ func (c *Connections) HandleConnection(conn net.Conn) {
 		}
 	}
 
+	conn.Write([]byte("To change your name write => /changename\n"))
+
 	// Announce User Joining
 	joiningMsg := fmt.Sprintf("\n%s has joined our chat...", userName)
 	c.BrodcastMsg(joiningMsg, conn)
@@ -62,7 +63,7 @@ func (c *Connections) HandleConnection(conn net.Conn) {
 	// Handle Incoming Messages
 	errmsg := c.HandleMessage(conn, userName)
 	if errmsg != nil {
-		
+
 		// Announce User Leaving
 		c.IncrementUserCount("-")
 		leftMsg := fmt.Sprintf("\n%s has left our chat...", userName)
