@@ -20,7 +20,7 @@ WriteAgain:
 		return err
 	}
 
-	if !ValidInput(readChat[:n-1]) {
+	if !ValidInput(readChat[:n-1]) || n == 1 {
 		goto WriteAgain
 	}
 

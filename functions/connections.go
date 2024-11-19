@@ -9,6 +9,7 @@ import (
 type Connections struct {
 	Users    map[string]net.Conn
 	messages []string
+	NbConn   int
 	sync.Mutex
 }
 
@@ -37,5 +38,16 @@ func (c *Connections) RemoveClient(name string) {
 func (c *Connections) RegisterMsg(s string) {
 	c.Lock()
 	c.messages = append(c.messages, s)
+	c.Unlock()
+}
+
+func (c *Connections) IncrementUserCount(operation string) {
+	c.Lock()
+	switch operation {
+	case "+":
+		c.NbConn++
+	case "-":
+		c.NbConn--
+	}
 	c.Unlock()
 }

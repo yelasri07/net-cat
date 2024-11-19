@@ -38,6 +38,12 @@ func (c *Connections) HandleConnection(conn net.Conn) {
 		return
 	}
 
+	c.IncrementUserCount("+")
+
+	if c.NbConn > 10 {
+		conn.Write([]byte("Try logging in later, the chat is full.\n"))
+		return
+	}
 	c.AddClient(userName, conn)
 
 	// Send Previous Messages to New User
@@ -55,8 +61,11 @@ func (c *Connections) HandleConnection(conn net.Conn) {
 	errmsg := c.HandleMessage(conn, userName)
 	if errmsg != nil {
 		// Announce User Leaving
+		c.IncrementUserCount("-")
 		leftMsg := fmt.Sprintf("\n%s has left our chat...\n", userName)
 		c.BrodcastMsg(leftMsg, conn)
+
+
 		c.RemoveClient(userName)
 	}
 }
