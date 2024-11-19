@@ -18,12 +18,15 @@ check:
 		return err
 	}
 
-	if !ValidInput(readChat[:n-1]) || n == 1 {
+	if n == 1 || !ValidInput(readChat[:n-1]) {
 		conn.Write([]byte("Invalid Input!!\n"))
 		goto check
 	}
 
-	*userName = string(readChat[:n-1])
-
+	(*userName) = string(readChat[:n-1])
+	if _, exist := c.Users[(*userName)]; exist {
+		conn.Write([]byte("name already exist please try an other name.\n"))
+		goto check
+	}
 	return nil
 }

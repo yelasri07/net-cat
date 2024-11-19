@@ -10,6 +10,10 @@ import (
 // and managing their participation in the chat.
 func (c *Connections) HandleConnection(conn net.Conn) {
 	defer conn.Close()
+	if c.NbConn > 9 {
+		conn.Write([]byte("Try logging in later, the chat is full.\n"))
+		return
+	}
 
 	// Welcome Message
 	welcomeMessage := "Welcome to TCP-Chat!\n" +
@@ -38,12 +42,9 @@ func (c *Connections) HandleConnection(conn net.Conn) {
 		return
 	}
 
+
 	c.IncrementUserCount("+")
 
-	if c.NbConn > 10 {
-		conn.Write([]byte("Try logging in later, the chat is full.\n"))
-		return
-	}
 	c.AddClient(userName, conn)
 
 	// Send Previous Messages to New User
@@ -56,16 +57,17 @@ func (c *Connections) HandleConnection(conn net.Conn) {
 	// Announce User Joining
 	joiningMsg := fmt.Sprintf("\n%s has joined our chat...\n", userName)
 	c.BrodcastMsg(joiningMsg, conn)
+	c.Logs(joiningMsg)
 
 	// Handle Incoming Messages
 	errmsg := c.HandleMessage(conn, userName)
 	if errmsg != nil {
+		
 		// Announce User Leaving
 		c.IncrementUserCount("-")
 		leftMsg := fmt.Sprintf("\n%s has left our chat...\n", userName)
 		c.BrodcastMsg(leftMsg, conn)
-
-
+		c.Logs(leftMsg)
 		c.RemoveClient(userName)
 	}
 }
