@@ -9,7 +9,6 @@ import (
 func (c *Connections) handleName(conn net.Conn, userName *string, inputName string) error {
 	readChat := make([]byte, 4096)
 
-	conn.Write([]byte("The name should not exceed 15 letters.\n"))
 	for {
 		conn.Write([]byte(inputName))
 
@@ -22,6 +21,11 @@ func (c *Connections) handleName(conn net.Conn, userName *string, inputName stri
 
 		if !CheckSpaceName(*userName) || !ValidInput([]byte(*userName)) {
 			conn.Write([]byte("Enter a name like : Ismail_Sayen | Youssef07 | !Mossab\n"))
+			continue
+		}
+
+		if len(*userName) > 15 {
+			conn.Write([]byte("The name should not exceed 15 letters.\n"))
 			continue
 		}
 
