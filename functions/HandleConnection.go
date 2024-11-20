@@ -10,10 +10,6 @@ import (
 // and managing their participation in the chat.
 func (c *Connections) HandleConnection(conn net.Conn) {
 	defer conn.Close()
-	if c.NbConn > 9 {
-		conn.Write([]byte("Try logging in later, the chat is full.\n"))
-		return
-	}
 
 	// Welcome Message
 	welcomeMessage := "Welcome to TCP-Chat!\n" +
@@ -43,6 +39,11 @@ func (c *Connections) HandleConnection(conn net.Conn) {
 	}
 
 	c.IncrementUserCount("+")
+
+	if c.NbConn > 10 {
+		conn.Write([]byte("Try logging in later, the chat is full."))
+		return
+	}
 
 	c.AddClient(userName, conn)
 
